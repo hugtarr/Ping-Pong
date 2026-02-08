@@ -1,5 +1,9 @@
 from random import random
 import pygame
+import sys
+import os
+
+
 
 class Sprite:
     def __init__(self,center,image):
@@ -61,6 +65,7 @@ class Ball(Sprite):
             self.velocity.rotate_ip(a)
             print(self.velocity.angle)
             self.speed += 0.5
+            hit_sound.play()
     
     def check_y_collision(self,player):
         if self.rect.colliderect(player.rect):
@@ -89,6 +94,13 @@ class Ball(Sprite):
             self.rect.bottom = 600
             self.velocity.y = -self.velocity.y
             
+def get_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except:
+        base_path = os.path.abspath('.')
+    return os.path.join(base_path,relative_path)
+
 
 
 pygame.init()
@@ -101,21 +113,29 @@ clock = pygame.Clock()
 font = pygame.Font(None, 32)
 
 
-image = pygame.Surface( (40, 100) )
-image.fill('orange')
+image = pygame.image.load(get_path('images/6626534511.jpg'))
+image = pygame.transform.scale(image,(100,100))
 left_player = Player((40,300), image,10)
 right_player = Player((760,300),image, 10)
 
-image = pygame.Surface((30,30))
-image.fill('white')
-pygame.draw.aacircle(image,'red', (15,15),15)
+image = pygame.image.load(get_path('images/6809804974.jpg'))
+image = pygame.transform.scale(image,(50,50))
 ball = Ball((400,300), image,5)
 
+background = pygame.image.load(get_path('images/mountains-background-game-vector.jpg'))
+background = pygame.transform.scale(background,(800,600))
 running = True
 
 left_score = 0
 right_score = 0
 
+
+pygame.mixer.music.load(get_path('sounds/spaceship.wav'))
+pygame.mixer.music.set_volume(0.3)
+pygame.mixer.music.play(loops = -1)
+
+hit_sound = pygame.mixer.Sound(get_path('sounds/skill_hit.mp3'))
+hit_sound.set_volume(1.0)
 
 while running:
     # обработка событий
@@ -165,7 +185,7 @@ while running:
         ball.reset()
     # Отрисовка
     # RGB - (0-255, 0-255, 0-255)
-    surface.fill('white')
+    surface.blit(background, (0,0))
     left_player.render(surface)
     right_player.render(surface)
     ball.render(surface)
@@ -179,4 +199,3 @@ while running:
     window.flip()
     clock.tick(60)
     window.title = 'FPS:' + str(round(clock.get_fps()))
-
